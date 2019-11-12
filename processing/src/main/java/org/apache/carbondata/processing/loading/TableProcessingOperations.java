@@ -19,6 +19,8 @@ package org.apache.carbondata.processing.loading;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,7 +57,24 @@ public class TableProcessingOperations {
       final boolean isCompactionFlow) throws IOException {
     String metaDataLocation = carbonTable.getMetadataPath();
     final LoadMetadataDetails[] details = SegmentStatusManager.readLoadMetadata(metaDataLocation);
-
+    
+    //to avoid deleting all segments unnecessary when unable to read the tablestatus
+    if (details.length == 0) return;
+    
+    //make a set of segmentId to speed up the filtering later
+    //find the largest segmentId
+    final Set<String> segmentIds = new HashSet<String>();
+    int maxSegmentIdFromMeta = 0;
+    for (LoadMetadataDetails meta : details) {
+    	segmentIds.add(meta.getLoadName());
+    	if (!meta.getLoadName().contains(".")) {
+	    	int current = Integer.parseInt(meta.getLoadName());
+	    	if (maxSegmentIdFromMeta < current) {
+	    		maxSegmentIdFromMeta = current;
+	    	}
+    	}
+    }
+    
     //delete folder which metadata no exist in tablestatus
     String partitionPath = CarbonTablePath.getPartitionDir(carbonTable.getTablePath());
     FileFactory.FileType fileType = FileFactory.getFileType(partitionPath);
@@ -65,16 +84,10 @@ public class TableProcessingOperations {
         @Override public boolean accept(CarbonFile path) {
           String segmentId =
               CarbonTablePath.DataFileUtil.getSegmentIdFromPath(path.getAbsolutePath() + "/dummy");
-          boolean found = false;
-          for (int j = 0; j < details.length; j++) {
-            if (details[j].getLoadName().equals(segmentId)) {
-              found = true;
-              break;
-            }
-          }
-          return !found;
+          return !(segmentIds.contains(segmentId));
         }
       });
+      
       for (int k = 0; k < listFiles.length; k++) {
         String segmentId = CarbonTablePath.DataFileUtil
             .getSegmentIdFromPath(listFiles[k].getAbsolutePath() + "/dummy");
@@ -83,7 +96,8 @@ public class TableProcessingOperations {
             CarbonLoaderUtil.deleteStorePath(listFiles[k].getAbsolutePath());
           }
         } else {
-          if (!segmentId.contains(".")) {
+          //only delete segment where id within the tablestatus
+          if (!segmentId.contains(".") && Integer.parseInt(segmentId) <= maxSegmentIdFromMeta) {
             CarbonLoaderUtil.deleteStorePath(listFiles[k].getAbsolutePath());
           }
         }
