@@ -224,7 +224,7 @@ public class Segment implements Serializable, Writable {
    */
   public static Segment getSegment(String segmentNo, String tablePath) {
     LoadMetadataDetails[] loadMetadataDetails =
-        SegmentStatusManager.readLoadMetadata(CarbonTablePath.getMetadataPath(tablePath));
+        SegmentStatusManager.readLoadMetadataWithRetry(CarbonTablePath.getMetadataPath(tablePath));
     return getSegment(segmentNo, loadMetadataDetails);
   }
 

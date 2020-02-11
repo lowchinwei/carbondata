@@ -329,9 +329,6 @@ public class SegmentFileStore {
     boolean status = false;
     String tablePath = carbonTable.getTablePath();
     String tableStatusPath = CarbonTablePath.getTableStatusFilePath(tablePath);
-    if (!FileFactory.isFileExist(tableStatusPath)) {
-      return status;
-    }
     String metadataPath = CarbonTablePath.getMetadataPath(tablePath);
     AbsoluteTableIdentifier absoluteTableIdentifier =
         AbsoluteTableIdentifier.from(tablePath, null, null, tableId);

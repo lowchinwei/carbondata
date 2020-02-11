@@ -212,8 +212,46 @@ public class SegmentStatusManager {
     try {
       return readTableStatusFile(metadataFileName);
     } catch (IOException e) {
+      LOG.error("Fail to readLoadMetadata ", e);
       return new LoadMetadataDetails[0];
     }
+  }
+  
+  /**
+   * This method reads the load metadata file with retry when the result is empty
+   *
+   * @param metadataFolderPath
+   * @return
+   */
+  public static LoadMetadataDetails[] readLoadMetadataWithRetry(String metadataFolderPath) {
+	int retryCount = 0;
+	int retryTimeout = 0;
+    String retries = CarbonProperties.getInstance()
+	    .getProperty(CarbonCommonConstants.NUMBER_OF_TRIES_FOR_CARBON_LOCK);
+	try {
+	  retryCount = Integer.parseInt(retries);
+	} catch (NumberFormatException e) {
+	  retryCount = CarbonCommonConstants.NUMBER_OF_TRIES_FOR_CARBON_LOCK_DEFAULT;
+	}
+	String maxTimeout = CarbonProperties.getInstance()
+	    .getProperty(CarbonCommonConstants.MAX_TIMEOUT_FOR_CARBON_LOCK);
+	try {
+	  retryTimeout = Integer.parseInt(maxTimeout);
+	} catch (NumberFormatException e) {
+	  retryTimeout = CarbonCommonConstants.MAX_TIMEOUT_FOR_CARBON_LOCK_DEFAULT;
+	}
+    LoadMetadataDetails[] details = new LoadMetadataDetails[0];
+    
+    for (int i = 0; i < retryCount; i++) {
+      try {
+    	details = readLoadMetadata(metadataFolderPath);
+    	if (details.length > 0) return details;
+    	Thread.sleep(retryTimeout * 1000L);
+      } catch (Exception e) {
+        details = new LoadMetadataDetails[0];
+      }
+    }
+    return details;
   }
 
   /**

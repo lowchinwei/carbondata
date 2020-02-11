@@ -161,7 +161,7 @@ public class CarbonIndexFileMergeWriter {
     }
     List<PartitionSpec> partitionSpecs = SegmentFileStore
         .getPartitionSpecs(segmentId, table.getTablePath(), SegmentStatusManager
-            .readLoadMetadata(CarbonTablePath.getMetadataPath(table.getTablePath())));
+            .readLoadMetadataWithRetry(CarbonTablePath.getMetadataPath(table.getTablePath())));
     for (Map.Entry<String, Map<String, byte[]>> entry : indexLocationMap.entrySet()) {
       String mergeIndexFile =
           writeMergeIndexFile(indexFileNamesTobeAdded, entry.getKey(), entry.getValue(), segmentId);

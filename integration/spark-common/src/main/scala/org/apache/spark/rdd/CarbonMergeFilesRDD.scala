@@ -154,7 +154,7 @@ class CarbonMergeFilesRDD(
   override def internalGetPartitions: Array[Partition] = {
     if (isHivePartitionedTable) {
       val metadataDetails = SegmentStatusManager
-        .readLoadMetadata(CarbonTablePath.getMetadataPath(carbonTable.getTablePath))
+        .readLoadMetadataWithRetry(CarbonTablePath.getMetadataPath(carbonTable.getTablePath))
       // in case of partition table make rdd partitions per partition of the carbon table
       val partitionPaths: java.util.Map[String, java.util.List[String]] = new java.util.HashMap()
       segments.foreach(segment => {

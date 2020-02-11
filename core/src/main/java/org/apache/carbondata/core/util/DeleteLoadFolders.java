@@ -233,8 +233,14 @@ public final class DeleteLoadFolders {
                 LOGGER.info("Info: Acquired segment lock on segment:" + oneLoad.getLoadName());
                 LoadMetadataDetails currentDetails =
                     getCurrentLoadStatusOfSegment(oneLoad.getLoadName(), metadataPath);
-                if (currentDetails != null && checkIfLoadCanBeDeleted(currentDetails,
-                    isForceDelete)) {
+                long segmentLockFilesPreserveTime =
+                        CarbonProperties.getInstance().getSegmentLockFilesPreserveHours();
+                // Check the current load details again, this time without force delete 
+                // because the segment status may already changed from IN_PROGRESS to other state 
+                // also check the Load starting time is within the lock reserve time
+                if (currentDetails != null && checkIfLoadCanBeDeleted(currentDetails, false) &&
+                    (System.currentTimeMillis() - currentDetails.getLoadStartTimeAsLong()) > segmentLockFilesPreserveTime
+                    ) {
                   oneLoad.setVisibility("false");
                   isDeleted = true;
                   LOGGER.info("Info: Deleted the load " + oneLoad.getLoadName());
