@@ -51,6 +51,8 @@ import org.apache.carbondata.processing.loading.model.{CarbonLoadModel, CarbonLo
 import org.apache.carbondata.processing.util.CarbonBadRecordUtil
 import org.apache.carbondata.spark.util.{CarbonScalaUtil, CommonUtil, Util}
 
+import org.apache.carbondata.core.util.{ThreadLocalTaskInfo}
+
 class SparkCarbonTableFormat
   extends FileFormat
     with DataSourceRegister
@@ -172,6 +174,7 @@ with Serializable {
         CarbonProperties.getInstance().addProperty(
           CarbonCommonConstants.CARBON_WRITTEN_BY_APPNAME, appName)
         val taskNumber = generateTaskNumber(path, context, model.getSegmentId)
+        ThreadLocalTaskInfo.getCarbonTaskInfo.getTaskId
         val storeLocation = CommonUtil.getTempStoreLocations(taskNumber)
         CarbonTableOutputFormat.setTempStoreLocations(context.getConfiguration, storeLocation)
         new CarbonOutputWriter(path, context, dataSchema.map(_.dataType), taskNumber, model)
@@ -394,6 +397,8 @@ private class CarbonOutputWriter(path: String,
       writePath,
       model.getSegmentId + "_" + model.getFactTimeStamp + "",
       partitionList)
+
+    CommonUtil.clearUnsafeMemory(ThreadLocalTaskInfo.getCarbonTaskInfo.getTaskId)
   }
 
   def getPartitionPath(path: String,
