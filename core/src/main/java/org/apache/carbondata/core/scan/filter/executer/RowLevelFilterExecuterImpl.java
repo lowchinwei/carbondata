@@ -634,7 +634,8 @@ public class RowLevelFilterExecuterImpl implements FilterExecuter {
     }
 
     for (MeasureColumnResolvedFilterInfo msrColumnEvalutorInfo : msrColEvalutorInfoList) {
-      int chunkIndex = msrColEvalutorInfoList.get(0).getColumnIndex();
+      int chunkIndex = segmentProperties.getMeasuresColumnIdToChunkMapping()
+        .get(msrColEvalutorInfoList.get(0).getCarbonColumn().getColumnId());
       if (null == rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex]) {
         rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex] =
             rawBlockletColumnChunks.getDataBlock()

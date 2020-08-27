@@ -282,8 +282,8 @@ public class RowLevelRangeGrtrThanEquaToFilterExecuterImpl extends RowLevelFilte
       }
       return bitSetGroup;
     } else {
-      int chunkIndex = segmentProperties.getMeasuresOrdinalToChunkMapping()
-          .get(msrColEvalutorInfoList.get(0).getColumnIndex());
+      int chunkIndex = segmentProperties.getMeasuresColumnIdToChunkMapping()
+          .get(msrColEvalutorInfoList.get(0).getCarbonColumn().getColumnId());
       if (null == rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex]) {
         rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex] =
             rawBlockletColumnChunks.getDataBlock().readMeasureChunk(
@@ -374,8 +374,8 @@ public class RowLevelRangeGrtrThanEquaToFilterExecuterImpl extends RowLevelFilte
       }
       return bitSet;
     } else {
-      int chunkIndex = segmentProperties.getMeasuresOrdinalToChunkMapping()
-          .get(msrColEvalutorInfoList.get(0).getColumnIndex());
+      int chunkIndex = segmentProperties.getMeasuresColumnIdToChunkMapping()
+          .get(msrColEvalutorInfoList.get(0).getCarbonColumn().getColumnId());
       if (null == rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex]) {
         rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex] =
             rawBlockletColumnChunks.getDataBlock()
@@ -592,7 +592,8 @@ public class RowLevelRangeGrtrThanEquaToFilterExecuterImpl extends RowLevelFilte
                 rawBlockletColumnChunks.getFileReader(), chunkIndex);
       }
     } else if (isMeasurePresentInCurrentBlock[0]) {
-      int chunkIndex = msrColEvalutorInfoList.get(0).getColumnIndex();
+      int chunkIndex = segmentProperties.getMeasuresColumnIdToChunkMapping()
+          .get(msrColEvalutorInfoList.get(0).getCarbonColumn().getColumnId());
       if (null == rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex]) {
         rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex] =
             rawBlockletColumnChunks.getDataBlock().readMeasureChunk(

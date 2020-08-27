@@ -109,6 +109,11 @@ public class SegmentProperties {
   private Map<Integer, Integer> measuresOrdinalToChunkMapping;
 
   /**
+   * mapping of measure column id in schema to column chunk index in the data file
+   */
+  private Map<String, Integer> measuresColumnIdToChunkMapping;
+
+  /**
    * size of the each dimension column value in a block this can be used when
    * we need to do copy a cell value to create a tuple.for no dictionary
    * column this value will be -1. for dictionary column we size of the value
@@ -157,6 +162,8 @@ public class SegmentProperties {
         new HashMap<Integer, Set<Integer>>(CarbonCommonConstants.DEFAULT_COLLECTION_SIZE);
     measuresOrdinalToChunkMapping =
         new HashMap<Integer, Integer>(CarbonCommonConstants.DEFAULT_COLLECTION_SIZE);
+    measuresColumnIdToChunkMapping =
+        new HashMap<String, Integer>(CarbonCommonConstants.DEFAULT_COLLECTION_SIZE);
     fillOrdinalToBlockMappingForDimension();
     fillOrdinalToChunkIndexMappingForMeasureColumns();
     fillKeyGeneratorDetails();
@@ -235,6 +242,8 @@ public class SegmentProperties {
     int index = 0;
     while (index < measures.size()) {
       measuresOrdinalToChunkMapping.put(measures.get(index).getOrdinal(), blockOrdinal);
+      measuresColumnIdToChunkMapping.put(measures.get(index).getColumnId(), blockOrdinal);
+      
       blockOrdinal++;
       index++;
     }
@@ -571,6 +580,14 @@ public class SegmentProperties {
   public Map<Integer, Integer> getMeasuresOrdinalToChunkMapping() {
     return measuresOrdinalToChunkMapping;
   }
+  
+  /**
+   * @return the getMeasuresColumnIdToChunkMapping
+   */
+  public Map<String, Integer> getMeasuresColumnIdToChunkMapping() {
+    return measuresColumnIdToChunkMapping;
+  }
+  
 
   /**
    * @return the eachDimColumnValueSize

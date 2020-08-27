@@ -183,8 +183,8 @@ public class RowLevelRangeGrtThanFiterExecuterImpl extends RowLevelFilterExecute
       }
       return bitSet;
     } else if (isMeasurePresentInCurrentBlock[0]) {
-      int chunkIndex = segmentProperties.getMeasuresOrdinalToChunkMapping()
-          .get(msrColEvalutorInfoList.get(0).getColumnIndex());
+      int chunkIndex = segmentProperties.getMeasuresColumnIdToChunkMapping()
+          .get(msrColEvalutorInfoList.get(0).getCarbonColumn().getColumnId());
       if (null == rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex]) {
         rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex] =
             rawBlockletColumnChunks.getDataBlock()
@@ -339,8 +339,8 @@ public class RowLevelRangeGrtThanFiterExecuterImpl extends RowLevelFilterExecute
       }
       return bitSetGroup;
     } else if (isMeasurePresentInCurrentBlock[0]) {
-      int chunkIndex = segmentProperties.getMeasuresOrdinalToChunkMapping()
-          .get(msrColEvalutorInfoList.get(0).getColumnIndex());
+      int chunkIndex = segmentProperties.getMeasuresColumnIdToChunkMapping()
+          .get(msrColEvalutorInfoList.get(0).getCarbonColumn().getColumnId());
       if (null == rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex]) {
         rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex] =
             rawBlockletColumnChunks.getDataBlock().readMeasureChunk(
@@ -603,7 +603,8 @@ public class RowLevelRangeGrtThanFiterExecuterImpl extends RowLevelFilterExecute
                 rawBlockletColumnChunks.getFileReader(), chunkIndex);
       }
     } else if (isMeasurePresentInCurrentBlock[0]) {
-      int chunkIndex = msrColEvalutorInfoList.get(0).getColumnIndex();
+      int chunkIndex = segmentProperties.getMeasuresColumnIdToChunkMapping()
+          .get(msrColEvalutorInfoList.get(0).getCarbonColumn().getColumnId());
       if (null == rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex]) {
         rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex] =
             rawBlockletColumnChunks.getDataBlock().readMeasureChunk(

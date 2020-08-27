@@ -271,8 +271,8 @@ public class RowLevelRangeLessThanFilterExecuterImpl extends RowLevelFilterExecu
       }
       return bitSetGroup;
     } else {
-      int chunkIndex = segmentProperties.getMeasuresOrdinalToChunkMapping()
-          .get(msrColEvalutorInfoList.get(0).getColumnIndex());
+      int chunkIndex = segmentProperties.getMeasuresColumnIdToChunkMapping()
+          .get(msrColEvalutorInfoList.get(0).getCarbonColumn().getColumnId());
       if (null == rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex]) {
         rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex] =
             rawBlockletColumnChunks.getDataBlock().readMeasureChunk(
@@ -349,8 +349,8 @@ public class RowLevelRangeLessThanFilterExecuterImpl extends RowLevelFilterExecu
       }
       return bitSet;
     } else {
-      int chunkIndex = segmentProperties.getMeasuresOrdinalToChunkMapping()
-          .get(msrColEvalutorInfoList.get(0).getColumnIndex());
+      int chunkIndex = segmentProperties.getMeasuresColumnIdToChunkMapping()
+          .get(msrColEvalutorInfoList.get(0).getCarbonColumn().getColumnId());
       if (null == rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex]) {
         rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex] =
             rawBlockletColumnChunks.getDataBlock()
@@ -620,7 +620,8 @@ public class RowLevelRangeLessThanFilterExecuterImpl extends RowLevelFilterExecu
                 rawBlockletColumnChunks.getFileReader(), chunkIndex);
       }
     } else if (isMeasurePresentInCurrentBlock[0]) {
-      int chunkIndex = msrColEvalutorInfoList.get(0).getColumnIndex();
+      int chunkIndex = segmentProperties.getMeasuresColumnIdToChunkMapping()
+          .get(msrColEvalutorInfoList.get(0).getCarbonColumn().getColumnId());
       if (null == rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex]) {
         rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex] =
             rawBlockletColumnChunks.getDataBlock().readMeasureChunk(

@@ -123,8 +123,14 @@ public class ExcludeFilterExecuterImpl implements FilterExecuter {
 
       return bitSetGroup;
     } else if (isMeasurePresentInCurrentBlock) {
-      int chunkIndex = segmentProperties.getMeasuresOrdinalToChunkMapping()
-          .get(msrColumnEvaluatorInfo.getColumnIndex());
+      int chunkIndex = -1;
+      if (null == msrColumnEvaluatorInfo.getCarbonColumn()) {
+      	chunkIndex = segmentProperties.getMeasuresOrdinalToChunkMapping()
+      	    .get(msrColumnEvaluatorInfo.getColumnIndex());
+      } else {
+        chunkIndex = segmentProperties.getMeasuresColumnIdToChunkMapping()
+            .get(msrColumnEvaluatorInfo.getCarbonColumn().getColumnId());
+      }
       if (null == rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex]) {
         rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex] =
             rawBlockletColumnChunks.getDataBlock().readMeasureChunk(
@@ -431,8 +437,14 @@ public class ExcludeFilterExecuterImpl implements FilterExecuter {
                 rawBlockletColumnChunks.getFileReader(), chunkIndex);
       }
     } else if (isMeasurePresentInCurrentBlock) {
-      int chunkIndex = segmentProperties.getMeasuresOrdinalToChunkMapping()
-          .get(msrColumnEvaluatorInfo.getColumnIndex());
+      int chunkIndex = -1;
+      if (null == msrColumnEvaluatorInfo.getCarbonColumn()) {
+    	chunkIndex = segmentProperties.getMeasuresOrdinalToChunkMapping()
+    	    .get(msrColumnEvaluatorInfo.getColumnIndex());
+      } else {
+        chunkIndex = segmentProperties.getMeasuresColumnIdToChunkMapping()
+            .get(msrColumnEvaluatorInfo.getCarbonColumn().getColumnId());
+      }
       if (null == rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex]) {
         rawBlockletColumnChunks.getMeasureRawColumnChunks()[chunkIndex] =
             rawBlockletColumnChunks.getDataBlock().readMeasureChunk(
