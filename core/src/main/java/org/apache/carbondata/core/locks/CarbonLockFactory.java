@@ -48,6 +48,10 @@ public class CarbonLockFactory {
   static {
     CarbonLockFactory.getLockTypeConfigured();
   }
+  
+  public static String getLockType() {
+	  return lockTypeConfigured;
+  }
 
   /**
    * This method will determine the lock type.

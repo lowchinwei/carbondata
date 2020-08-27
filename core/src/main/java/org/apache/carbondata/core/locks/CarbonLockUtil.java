@@ -29,6 +29,10 @@ import org.apache.carbondata.core.util.path.CarbonTablePath;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.zookeeper.AsyncCallback;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
 
 /**
  * This class contains all carbon lock utilities
@@ -132,20 +136,52 @@ public class CarbonLockUtil {
       lockFilesDir = CarbonTablePath.getLockFilesDirPath(
           CarbonLockFactory.getLockpath(carbonTable.getTableInfo().getFactTable().getTableId()));
     }
-    CarbonFile[] files = FileFactory.getCarbonFile(lockFilesDir)
-        .listFiles(new CarbonFileFilter() {
-
-            @Override public boolean accept(CarbonFile pathName) {
-              if (CarbonTablePath.isSegmentLockFilePath(pathName.getName())) {
-                return (currTime - pathName.getLastModifiedTime()) > segmentLockFilesPreserveTime;
-              }
-              return false;
-            }
+    
+    String lockType = CarbonLockFactory.getLockType();
+    if (lockType.equals(CarbonCommonConstants.CARBON_LOCK_TYPE_ZOOKEEPER)) {
+      lockFilesDir = CarbonCommonConstants.ZOOKEEPER_LOCATION + CarbonCommonConstants.FILE_SEPARATOR + lockFilesDir; 
+      String zooKeeperUrl =
+          CarbonProperties.getInstance().getProperty(CarbonCommonConstants.ZOOKEEPER_URL);
+      final ZooKeeper zk = ZookeeperInit.getInstance(zooKeeperUrl).getZookeeper();
+      try {  
+    	  if (null != zk.exists(lockFilesDir, false)) {
+    	  for (String file: zk.getChildren(lockFilesDir, false)) {
+    		if (CarbonTablePath.isSegmentLockFilePath(file)) {
+    		  String path = lockFilesDir + CarbonCommonConstants.FILE_SEPARATOR + file;
+    		  zk.exists(path, false, new AsyncCallback.StatCallback() {
+    			@Override
+    		    public void processResult(int rc, String path, Object ctx, Stat stat) {
+                  if (currTime - stat.getMtime() > segmentLockFilesPreserveTime) {
+            		zk.delete(path, stat.getVersion(), new AsyncCallback.VoidCallback() {
+				      @Override
+					  public void processResult(int rc, String path, Object ctx) {
+					  }
+					}, null);
+            	  } 
+                }
+              }, null);
+    		}
+    	  }
         }
-    );
+      } catch (KeeperException | InterruptedException e) {
+        LOGGER.error(e.getMessage(), e);
+      }
+    } else {
+      CarbonFile[] files = FileFactory.getCarbonFile(lockFilesDir)
+          .listFiles(new CarbonFileFilter() {
 
-    for (CarbonFile file : files) {
-      file.delete();
+              @Override public boolean accept(CarbonFile pathName) {
+                if (CarbonTablePath.isSegmentLockFilePath(pathName.getName())) {
+                  return (currTime - pathName.getLastModifiedTime()) > segmentLockFilesPreserveTime;
+                }
+                return false;
+              }
+          }
+      );
+
+      for (CarbonFile file : files) {
+        file.delete();
+      }
     }
   }
 }
