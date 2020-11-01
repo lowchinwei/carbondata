@@ -218,6 +218,7 @@ public final class DeleteLoadFolders {
   }
 
   public static boolean deleteLoadFoldersFromFileSystem(
+      CarbonTable carbonTable,
       AbsoluteTableIdentifier absoluteTableIdentifier, boolean isForceDelete,
       LoadMetadataDetails[] details, String metadataPath) {
     boolean isDeleted = false;
@@ -243,6 +244,7 @@ public final class DeleteLoadFolders {
                     ) {
                   oneLoad.setVisibility("false");
                   isDeleted = true;
+                  DataMapStoreManager.getInstance().removeSegmentCache(carbonTable, oneLoad.getLoadName());
                   LOGGER.info("Info: Deleted the load " + oneLoad.getLoadName());
                 }
               } else {
@@ -252,6 +254,7 @@ public final class DeleteLoadFolders {
             } else {
               oneLoad.setVisibility("false");
               isDeleted = true;
+              DataMapStoreManager.getInstance().removeSegmentCache(carbonTable, oneLoad.getLoadName());
               LOGGER.info("Info: Deleted the load " + oneLoad.getLoadName());
             }
           } finally {

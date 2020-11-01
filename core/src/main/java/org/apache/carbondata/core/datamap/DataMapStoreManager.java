@@ -496,6 +496,10 @@ public final class DataMapStoreManager {
       clearInvalidSegments(carbonTable, toBeCleanedSegments);
     }
   }
+  
+  public void removeSegmentCache(CarbonTable carbonTable, String segmentId) {
+	  getTableSegmentRefresher(carbonTable).removeSegment(segmentId);;
+  }
 
   /**
    * Clear the datamap/datamaps of a table from memory
@@ -736,6 +740,10 @@ public final class DataMapStoreManager {
         segmentRefreshTime.remove(segmentId);
       }
       return isRefresh;
+    }
+    
+    public void removeSegment(String segmentId) {
+      segmentRefreshTime.remove(segmentId);
     }
 
     public void refreshSegments(List<String> segmentIds) {

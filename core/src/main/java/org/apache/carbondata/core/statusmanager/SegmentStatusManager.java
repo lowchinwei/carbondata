@@ -962,7 +962,7 @@ public class SegmentStatusManager {
       AbsoluteTableIdentifier absoluteTableIdentifier, LoadMetadataDetails[] details) {
     // Delete marked loads
     boolean isUpdationRequired = DeleteLoadFolders
-        .deleteLoadFoldersFromFileSystem(absoluteTableIdentifier, isForceDeletion, details,
+        .deleteLoadFoldersFromFileSystem(carbonTable, absoluteTableIdentifier, isForceDeletion, details,
             carbonTable.getMetadataPath());
     return new ReturnTuple(details, isUpdationRequired);
   }

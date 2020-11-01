@@ -88,7 +88,10 @@ public class TaskMetricsMap {
    * @param threadId
    */
   public void removeEntry(long threadId) {
-    metricMap.remove(threadId);
+	List<CarbonFSBytesReadOnThreadCallback> callbackList = metricMap.remove(threadId);
+    if (null != callbackList) {
+      FileSystem.clearStatistics();
+    }
   }
 
   /**

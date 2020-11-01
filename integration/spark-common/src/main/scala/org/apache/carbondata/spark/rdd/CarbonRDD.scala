@@ -18,6 +18,7 @@
 package org.apache.carbondata.spark.rdd
 
 import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 import scala.reflect.ClassTag
 
 import org.apache.hadoop.conf.Configuration
@@ -47,7 +48,13 @@ abstract class CarbonRDD[T: ClassTag](
       info = new CarbonSessionInfo
       info.setSessionParams(new SessionParams())
     }
-    info.getSessionParams.addProps(CarbonProperties.getInstance().getAddedProperty)
+    // This is a hack to remove property related to the temporary storage folder during 
+    // data loading and compaction
+    info.getSessionParams.addProps(
+      CarbonProperties.getInstance().getAddedProperty.filterNot { case (key, value) => 
+        key.startsWith("default_") || key.startsWith("COMPACTION_")
+      }
+    )
     info
   }
 
