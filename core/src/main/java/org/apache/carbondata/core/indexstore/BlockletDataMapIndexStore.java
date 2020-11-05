@@ -234,6 +234,26 @@ public class BlockletDataMapIndexStore
                 tableSegmentUniqueIdentifierWrapper.isAddTableBlockToUnsafeAndLRUCache());
       }
     }
+    
+    TableBlockIndexUniqueIdentifier identifier = tableSegmentUniqueIdentifierWrapper.getTableBlockIndexUniqueIdentifier();
+    try {
+	  if (identifier.getMergeIndexFileName() == null) {
+	    segmentLockMap.remove(identifier.getUniqueTableSegmentIdentifier());
+	  } else {
+		// if the identifier is a merge file then collect the index files and remove the cache
+	    SegmentIndexFileStore indexFileStore =
+	              new SegmentIndexFileStore(tableSegmentUniqueIdentifierWrapper.getConfiguration());
+		List<TableBlockIndexUniqueIdentifier> tableBlockIndexUniqueIdentifiers =
+		    BlockletDataMapUtil.getIndexFileIdentifiersFromMergeFile(identifier, indexFileStore);
+		for (TableBlockIndexUniqueIdentifier blockIndexUniqueIdentifier :
+		    tableBlockIndexUniqueIdentifiers) {
+		  segmentLockMap.remove(blockIndexUniqueIdentifier.getUniqueTableSegmentIdentifier());
+		}
+	  }
+    } catch (Throwable e) {
+      LOGGER.error("Failed to clean segmentLock " + identifier.getUniqueTableSegmentIdentifier(), e);
+    }
+    
     lruCache.remove(tableSegmentUniqueIdentifierWrapper.getTableBlockIndexUniqueIdentifier()
         .getUniqueTableSegmentIdentifier());
   }

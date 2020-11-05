@@ -498,7 +498,14 @@ public final class DataMapStoreManager {
   }
   
   public void removeSegmentCache(CarbonTable carbonTable, String segmentId) {
-	  getTableSegmentRefresher(carbonTable).removeSegment(segmentId);;
+	getTableSegmentRefresher(carbonTable).removeSegment(segmentId);
+	List<String> toBeCleanedSegments = new ArrayList<>();
+	toBeCleanedSegments.add(segmentId);
+	try {
+	  clearInvalidSegments(carbonTable, toBeCleanedSegments);
+	} catch (Throwable e) {
+      LOGGER.error("Failed to clear segment " + segmentId, e);
+	}
   }
 
   /**
