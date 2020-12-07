@@ -87,7 +87,11 @@ abstract class CarbonRDD[T: ClassTag](
     carbonTaskInfo.setTaskId(CarbonUtil.generateUUID())
     ThreadLocalTaskInfo.setCarbonTaskInfo(carbonTaskInfo)
     carbonSessionInfo.getSessionParams.getAddedProps.asScala.
-      map(f => CarbonProperties.getInstance().addProperty(f._1, f._2))
+      map { f => 
+        if (!(f._1.startsWith("default_") || f._1.startsWith("COMPACTION_"))) {
+          CarbonProperties.getInstance().addProperty(f._1, f._2)
+        }
+      }
     internalCompute(split, context)
   }
 
